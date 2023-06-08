@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Page
+    x:Class="MediaImporter.Views.SettingsPage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="using:MediaImporter.Views"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    mc:Ignorable="d"
+    Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
+
+    <StackPanel Orientation="Vertical" HorizontalAlignment="Left" Padding="24">
+        <TextBlock Text="Settings" Style="{StaticResource TitleTextBlockStyle}" />
+        <TextBox x:Name="DirFormatTextBox" Header="Directory Name" Margin="0,24,0,0" Width="400" InputScope="Url" TextChanged="DirFormatTextBox_TextChanged"/>
+        <TextBox x:Name="FileFormatTextBox" Header="File Name" Margin="0,5,0,0" Width="400" InputScope="Url" TextChanged="FileFormatTextBox_TextChanged"/>
+        <TextBlock Foreground="{StaticResource SystemColorGrayTextColor}" Margin="0,5,0,24">
+            %y - Year (2004)
+            <LineBreak/>
+            %M - Month (06)
+            <LineBreak/>
+            %MMM - Month short (Jun)
+            <LineBreak/>
+            %MMMM - Month full (June)
+            <LineBreak/>
+            %d - Day of month (30)
+            <LineBreak/>
+            %dddd - Day of week (Wednesday)
+            <LineBreak/>
+            %H - Hour (01)
+            <LineBreak/>
+            %m - Minute (45)
+            <LineBreak/>
+            %s - Second (59)
+        </TextBlock>
+        <CheckBox x:Name="ConvertHeicCheckbox" Content="Convert .HEIC and .HEIF files to JPEG" Click="ConvertHeicCheckbox_Checked"/>
+        <StackPanel Orientation="Horizontal" Margin="0,24,0,0" Spacing="5">
+            <Button x:Name="SaveButton" Click="SaveButton_Click" Style="{StaticResource AccentButtonStyle}" IsEnabled="False" Height="33">
+                <StackPanel Orientation="Horizontal" Spacing="5">
+                    <SymbolIcon Symbol="Save" />
+                    <TextBlock>Save</TextBlock>
+                </StackPanel>
+            </Button>
+            <Button x:Name="ResetButton" Click="ResetButton_Click" Height="33">
+                Reset
+            </Button>
+            <HyperlinkButton x:Name="AboutButton" Click="AboutButton_Click" Height="33">
+                About Media Importer
+            </HyperlinkButton>
+        </StackPanel>
+    </StackPanel>
+</Page>
