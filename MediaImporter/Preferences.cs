@@ -1,10 +1,11 @@
-﻿namespace MediaImporter
+﻿namespace io.ecn.MediaImporter
 {
     using System;
     using System.IO;
 
     internal class Preferences
     {
+        private readonly static Logger logger = new Logger(typeof(Preferences));
         private static string ConfigFilePath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "MediaImporter", "config.txt");
 
         public static void Load()
@@ -12,11 +13,13 @@
             var dirName = Path.GetDirectoryName(ConfigFilePath);
             if (!Directory.Exists(dirName))
             {
+                logger.Info($"Creating preferences directory {dirName}");
                 Directory.CreateDirectory(dirName);
             }
 
             if (!File.Exists(ConfigFilePath))
             {
+                logger.Info("Saving default preferences");
                 Save();
             }
 
@@ -24,13 +27,15 @@
             foreach (var line in lines)
             {
                 var parts = " = ".Split(line);
-                if (parts.Length != 2) {
+                if (parts.Length != 2)
+                {
                     continue;
                 }
                 var key = parts[0];
                 var value = parts[1];
 
-                switch (key) {
+                switch (key)
+                {
                     case "dir_format":
                         _DirectoryFormat = value;
                         break;
@@ -42,6 +47,8 @@
                         break;
                 }
             }
+
+            logger.Info($"Preferences loaded from {ConfigFilePath}");
         }
 
         public static void Save()
@@ -57,6 +64,7 @@
 
         public static void Reset()
         {
+            logger.Info("Resetting settings");
             _DirectoryFormat = DefaultDirectoryFormat;
             _FileFormat = DefaultFileFormat;
             _ConvertHeic = DefaultConvertHeic;

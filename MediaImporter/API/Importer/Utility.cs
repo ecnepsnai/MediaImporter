@@ -3,9 +3,12 @@
     using System.Collections.Generic;
     using PortableDeviceApiLib;
     using io.ecn.Importer.Model;
+    using io.ecn.MediaImporter;
 
     public class Utility
     {
+        private readonly static Logger logger = new Logger(typeof(Utility));
+
         public static List<Device> Get()
         {
             List<Device> connectedPortableDevices = new List<Device>();
@@ -15,7 +18,12 @@
             uint count = 1;
             manager.GetDevices(null, ref count);
 
-            if (count == 0) return connectedPortableDevices;
+            if (count == 0)
+            {
+                logger.Info("No devices returned");
+                return connectedPortableDevices;
+            }
+            logger.Info($"Found {count} devices");
 
             // Call the above again because we now know how many devices there are.
 

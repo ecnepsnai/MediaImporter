@@ -1,9 +1,9 @@
 ﻿namespace io.ecn.Encoder
 {
     using ImageMagick;
+    using io.ecn.MediaImporter;
     using System;
     using System.Collections.Generic;
-    using System.Diagnostics;
     using System.IO;
     using System.Linq;
     using System.Threading;
@@ -12,9 +12,10 @@
     public class EncodeManager
     {
         private readonly object semaphore = new object();
+        private static readonly Logger logger = new Logger(typeof(EncodeManager));
 
-        private List<string> mediaToConvert;
-        private IProgress<int> progress;
+        private List<string>? mediaToConvert;
+        private IProgress<int>? progress;
         private int currentMediaIdx = 0;
         private int convertedMediaCount = 0;
 
@@ -42,8 +43,8 @@
 
         private bool DoEncodeMedia()
         {
-            Debug.WriteLine($"Starting encoder across {Environment.ProcessorCount} threads");
-            List<Thread> threads = new List<Thread>();
+            logger.Info($"Starting encoder across {Environment.ProcessorCount} threads");
+            List<Thread> threads = new();
             for (int i = 0; i < Environment.ProcessorCount; i++)
             {
                 threads.Add(new Thread(ConvertNextMedia));
@@ -59,7 +60,7 @@
                 thread.Join();
             }
 
-            Debug.WriteLine($"Finished encoding {this.mediaToConvert.Count} items");
+            logger.Info($"Finished encoding {this.mediaToConvert!.Count} items");
             return true;
         }
 
@@ -70,7 +71,7 @@
                 string file;
                 lock (this.semaphore)
                 {
-                    if (this.currentMediaIdx >= this.mediaToConvert.Count)
+                    if (this.currentMediaIdx >= this.mediaToConvert!.Count)
                     {
                         return;
                     }
@@ -85,39 +86,39 @@
                     lock (this.semaphore)
                     {
                         convertedMediaCount++;
-                        this.progress.Report(convertedMediaCount);
+                        this.progress!.Report(convertedMediaCount);
                     }
-                    Debug.WriteLine($"Skip convert {file}");
+                    logger.Info($"Skip convert {file}");
                     continue;
                 }
 
                 try
                 {
-                    var format = this.GetMediaFormat(file);
+                    var format = GetMediaFormat(file);
                     switch (format)
                     {
                         case MagickFormat.Heic:
                         case MagickFormat.Heif:
-                            this.ConvertToJpg(file, "."+extension);
+                            ConvertToJpg(file, "."+extension);
                             break;
                         default:
-                            Debug.WriteLine($"Skip convert {file}");
+                            logger.Info($"Skip convert {file}");
                             break;
                     }
                     lock (this.semaphore)
                     {
                         convertedMediaCount++;
-                        this.progress.Report(convertedMediaCount);
+                        this.progress!.Report(convertedMediaCount);
                     }
                 }
                 catch (Exception e)
                 {
-                    Debug.WriteLine($"Exception converting media {file}: {e}");
+                    logger.Error($"Exception converting media {file}: {e}");
                 }
             }
         }
 
-        private MagickFormat GetMediaFormat(string filePath)
+        private static MagickFormat GetMediaFormat(string filePath)
         {
             using (var image = new MagickImage(filePath))
             {
@@ -125,7 +126,7 @@
             }
         }
 
-        private string ConvertToJpg(string filePath, string oldExtension)
+        private static string ConvertToJpg(string filePath, string oldExtension)
         {
             var newPath = filePath.Replace(oldExtension, ".jpg");
 
@@ -136,7 +137,7 @@
                 image.Write(newPath);
             };
 
-            Debug.WriteLine($"Converted {filePath} -> {newPath}");
+            logger.Info($"Converted {filePath} -> {newPath}");
             File.Delete(filePath);
             return newPath;
         }

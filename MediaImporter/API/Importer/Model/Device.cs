@@ -1,11 +1,11 @@
-﻿using PortableDeviceApiLib;
-using PortableDeviceTypesLib;
-using io.ecn.Importer.Model.Properties;
-using io.ecn.Importer.Model.Properties.Device;
-using IPortableDeviceValues = PortableDeviceApiLib.IPortableDeviceValues;
-
-namespace io.ecn.Importer.Model
+﻿namespace io.ecn.Importer.Model
 {
+    using PortableDeviceApiLib;
+    using PortableDeviceTypesLib;
+    using io.ecn.Importer.Model.Properties;
+    using io.ecn.Importer.Model.Properties.Device;
+    using IPortableDeviceValues = PortableDeviceApiLib.IPortableDeviceValues;
+
     public class Device : BaseDeviceItem
     {
         public string DeviceId { get; set; }

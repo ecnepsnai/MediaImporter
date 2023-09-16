@@ -1,8 +1,8 @@
-﻿using System;
-using PortableDeviceApiLib;
-
-namespace io.ecn.Importer.Model.Properties.Device
+﻿namespace io.ecn.Importer.Model.Properties.Device
 {
+    using System;
+    using PortableDeviceApiLib;
+
     /// <summary>
     /// This class extracts the device type property from the windows portable device
     /// </summary>

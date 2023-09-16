@@ -1,8 +1,7 @@
-﻿using System;
-using PortableDeviceApiLib;
-
-namespace io.ecn.Importer.Model.Properties
+﻿namespace io.ecn.Importer.Model.Properties
 {
+    using PortableDeviceApiLib;
+
     public class DateCreatedProperty : BaseWPDProperties
     {
         public readonly DateTime? Value;

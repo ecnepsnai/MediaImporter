@@ -1,8 +1,8 @@
-﻿using System;
-using PortableDeviceApiLib;
-
-namespace io.ecn.Importer.Model.Properties.Device
+﻿namespace io.ecn.Importer.Model.Properties.Device
 {
+    using System;
+    using PortableDeviceApiLib;
+
     public class SerialNumberProperty : BaseWPDProperties
     {
         public string Value { get; private set; }

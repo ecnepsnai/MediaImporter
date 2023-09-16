@@ -1,5 +1,4 @@
-﻿
-namespace io.ecn.Importer.Model
+﻿namespace io.ecn.Importer.Model
 {
     public class WindowsPortableDeviceEnumerators
     {

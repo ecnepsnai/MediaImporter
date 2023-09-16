@@ -1,11 +1,11 @@
-﻿using System;
-using System.IO;
-using System.Runtime.InteropServices;
-using PortableDeviceApiLib;
-using io.ecn.Importer.Model.Properties;
-
-namespace io.ecn.Importer.Model
+﻿namespace io.ecn.Importer.Model
 {
+    using System;
+    using System.IO;
+    using System.Runtime.InteropServices;
+    using PortableDeviceApiLib;
+    using io.ecn.Importer.Model.Properties;
+
     public class Item : BaseDeviceItem
     {
         public readonly ContentTypeProperty ContentType;
@@ -18,8 +18,7 @@ namespace io.ecn.Importer.Model
 
         public readonly IPortableDeviceContent DeviceContent;
 
-        public Item(string objectId, IPortableDeviceContent content)
-            : base(objectId)
+        public Item(string objectId, IPortableDeviceContent content) : base(objectId)
         {
             DeviceContent = content;
 
@@ -155,6 +154,8 @@ namespace io.ecn.Importer.Model
                     targetStream.Flush();
                     targetStream.Close();
                 }
+
+                Thread.Sleep(2000);
             }
             finally
             {

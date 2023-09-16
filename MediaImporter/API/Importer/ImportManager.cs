@@ -1,54 +1,51 @@
 ﻿namespace io.ecn.Importer
 {
     using io.ecn.Importer.Model;
-    using MediaImporter;
+    using io.ecn.MediaImporter;
     using System;
     using System.Collections.Generic;
-    using System.Diagnostics;
     using System.IO;
     using System.Linq;
     using System.Threading.Tasks;
 
     public class ImportManager
     {
-        public readonly string mediaDirectory;
-        private readonly Device importDevice;
+        private readonly static Logger logger = new Logger(typeof(ImportManager));
         private readonly string[] validExtensions = { "jpg", "jpeg", "png", "gif", "mov", "mp4", "m4v", "heic", "heif", "hevc", "webp", "dng" };       
 
-        public ImportManager(string mediaDirectory, Device importDevice)
-        {
-            this.mediaDirectory = mediaDirectory;
-            this.importDevice = importDevice;
-        }
+        public Task<List<Item>> FindMedia(Device importDevice) {
+            logger.Info("Enumerating device items...");
 
-        public Task<List<Item>> FindMedia() {
-            if (this.importDevice == null)
+            if (importDevice == null)
             {
+                logger.Error("No import device selected");
                 throw new InvalidOperationException("No devices found");
             }
 
-            this.importDevice.Refresh(this.importDevice.DeviceId);
-            if (this.importDevice.DeviceItems == null || this.importDevice.DeviceItems.Count == 0)
+            importDevice.Refresh(importDevice.DeviceId);
+            if (importDevice.DeviceItems == null || importDevice.DeviceItems.Count == 0)
             {
+                logger.Error("No media found");
                 throw new InvalidOperationException("No media found");
             }
 
-            var t = new Task<List<Item>>(this.EnumerateDeviceItems);
+            var t = new Task<List<Item>>(() => { return this.EnumerateDeviceItems(importDevice); });
             t.Start();
             return t;
         }
 
-        private List<Item> EnumerateDeviceItems()
+        private List<Item> EnumerateDeviceItems(Device importDevice)
         {
             List<Item> items = new();
-            foreach (var item in this.importDevice.DeviceItems)
+            foreach (var item in importDevice.DeviceItems)
             {
-                recurseItemFolder(item, ref items);
+                RecurseItemFolder(item, ref items);
             }
+            logger.Info($"Found {items.Count} media items");
             return items;
         }
 
-        private void recurseItemFolder(Item root, ref List<Item> rItems)
+        private void RecurseItemFolder(Item root, ref List<Item> rItems)
         {
             foreach (var item in root.DeviceItems)
             {
@@ -56,7 +53,7 @@
                 {
                     case WindowsPortableDeviceEnumerators.ContentType.FunctionalObject:
                     case WindowsPortableDeviceEnumerators.ContentType.Folder:
-                        recurseItemFolder(item, ref rItems);
+                        RecurseItemFolder(item, ref rItems);
                         break;
                     case WindowsPortableDeviceEnumerators.ContentType.GenericFile:
                     case WindowsPortableDeviceEnumerators.ContentType.Image:
@@ -69,37 +66,48 @@
                         var extension = item.OriginalFileName.Value.Split('.').Last().ToLower();
                         if (!this.validExtensions.Contains(extension))
                         {
+                            logger.Info($"Unsupported file extension {extension}");
                             break;
                         }
+                        logger.Info($"Found media item {item.OriginalFileName.Value}");
                         rItems.Add(item);
                         break;
                     default:
+                        logger.Info($"Unknown item content type {item.ContentType.Type}");
                         break;
                 }
             }
         }
 
-        public Task<List<string>> ImportMedia(List<Item> items, IProgress<int> progress)
+        public Task<List<string>> ImportMedia(Device importDevice, string importDirectory, List<Item> items, IProgress<int> progress)
         {
             return Task<List<string>>.Factory.StartNew(() =>
             {
-                return DoImport(items, progress);
+                return DoImport(importDevice, importDirectory, items, progress);
             });
         }
 
-        private List<string> DoImport(List<Item> items, IProgress<int> progress)
+        private List<string> DoImport(Device importDevice, string importDirectory, List<Item> items, IProgress<int> progress)
         {
-            Debug.WriteLine("Starting import...");
+            logger.Info("Starting import...");
 
             // Build two maps, one used for date deduplication and the other to hold the desired file name (without extension)
             Dictionary<string, bool> dateMap = new Dictionary<string, bool>();
             Dictionary<string, string> itemNameMap = new Dictionary<string, string>();
             foreach (Item item in items)
             {
-                var itemDirectory = this.itemDirectory(item);
-                Directory.CreateDirectory(itemDirectory);
+                var itemDirectory = ItemDirectory(importDirectory, item);
+                try
+                {
+                    Directory.CreateDirectory(itemDirectory);
+                }
+                catch (Exception e)
+                {
+                    logger.Error($"Error making item directory {itemDirectory}: {e.Message}");
+                    continue;
+                }
 
-                var dateStr = itemDateStr(item);
+                var dateStr = ItemDateStr(item);
                 if (!dateMap.ContainsKey(dateStr))
                 {
                     dateMap[dateStr] = true;
@@ -119,35 +127,63 @@
                 itemNameMap[item.Id] = dateWithIdx;
             }
 
-            this.importDevice.Connect();
             int i = 0;
-            List<string> filePaths = new List<string>();
+            List<string> filePaths = new();
+
+            try
+            {
+                importDevice.Connect();
+            }
+            catch (Exception e)
+            {
+                logger.Error($"Error connecting to device: {e.Message}");
+                return filePaths;
+            }
+
             foreach (Item item in items)
             {
                 var extension = item.OriginalFileName.Value.Split('.').Last().ToLower();
                 var fileName = itemNameMap[item.Id] + "." + extension;
 
-                var itemDirectory = this.itemDirectory(item);
+                var itemDirectory = ItemDirectory(importDirectory, item);
                 string filePath = Path.Combine(itemDirectory, fileName);
-                item.TransferToFile(filePath);
+                try
+                {
+                    item.TransferToFile(filePath);
+                }
+                catch (Exception e)
+                {
+                    logger.Error($"Error transferring item to file: {filePath}: {e.Message}");
+                    i++;
+                    progress.Report(i);
+                    continue;
+                }
 
                 File.SetCreationTime(filePath, item.Date);
                 File.SetLastWriteTime(filePath, item.Date);
 
-                Debug.WriteLine($"Imported {item.Name.Value} -> {filePath}");
+                logger.Info($"Imported {item.Id} -> {filePath}");
 
                 filePaths.Add(filePath);
                 i++;
                 progress.Report(i);
             }
-            this.importDevice.Disconnect();
 
-            Debug.WriteLine($"Imported {filePaths.Count} media items");
+            try
+            {
+                importDevice.Disconnect();
+            }
+            catch
+            {
+                // Pass
+            }
+
+            logger.Info($"Imported {filePaths.Count} media items");
 
             return filePaths;
         }
 
-        private string itemDirectory(Item item)
+        private static string ItemDirectory(string mediaDirectory, Item item)
         {
             var formatStr = Preferences.DirectoryFormat;
             formatStr = formatStr.Replace("%y", item.Date.ToString("yyyy"));
@@ -159,10 +195,10 @@
             formatStr = formatStr.Replace("%H", item.Date.ToString("HH"));
             formatStr = formatStr.Replace("%m", item.Date.ToString("mm"));
             formatStr = formatStr.Replace("%s", item.Date.ToString("ss"));
-            return Path.Combine(this.mediaDirectory, formatStr);
+            return Path.Combine(mediaDirectory, formatStr);
         }
 
-        private string itemDateStr(Item item)
+        private static string ItemDateStr(Item item)
         {
             var formatStr = Preferences.FileFormat;
             formatStr = formatStr.Replace("%y", item.Date.ToString("yyyy"));
