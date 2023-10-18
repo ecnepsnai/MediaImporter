@@ -28,7 +28,6 @@
         /// </summary>
         private void InitializeComponent()
         {
-            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(MainView));
             deviceComboBox = new ComboBox();
             deviceReloadButton = new Button();
             label1 = new Label();

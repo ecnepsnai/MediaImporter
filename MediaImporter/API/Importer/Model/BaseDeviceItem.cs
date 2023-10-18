@@ -5,7 +5,9 @@
     public class BaseDeviceItem
     {
         public Guid Guid { get; protected set; }
+
         public string Id { get; protected set; }
+
         public List<Item> DeviceItems { get; private set; }
 
         public BaseDeviceItem(string id)

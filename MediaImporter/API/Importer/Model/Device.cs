@@ -11,17 +11,21 @@
         public string DeviceId { get; set; }
 
         public ContentTypeProperty ContentType { get; set; }
+
         public TypeProperty DeviceType { get; set; }
-        public FirmwareVersionProperty FirmwareVersion { get; private set; }
+
         public FriendlyNameProperty FriendlyName { get; private set; }
+
         public string Label { get; private set; }
+
         public ManufacturerProperty Manufacturer { get; private set; }
+
         public ModelProperty Model { get; private set; }
+
         public NameProperty Name { get; private set; }
-        public SerialNumberProperty SerialNumber { get; private set; }
 
         // COM related objects.
-        
+
         private PortableDeviceClass ComDeviceObject { get; set; }
         public bool IsConnected { get; private set; }
 
@@ -45,7 +49,6 @@
 
             ContentType = new ContentTypeProperty(deviceProperties);
             DeviceType = new TypeProperty(deviceProperties);
-            FirmwareVersion = new FirmwareVersionProperty(deviceProperties);
             FriendlyName = new FriendlyNameProperty(deviceProperties);
             if (FriendlyName != null)
             {
@@ -58,7 +61,6 @@
             Manufacturer = new ManufacturerProperty(deviceProperties);
             Model = new ModelProperty(deviceProperties);
             Name = new NameProperty(deviceProperties);
-            SerialNumber = new SerialNumberProperty(deviceProperties);
 
             LoadDeviceData(ComDeviceObject);
 
@@ -160,7 +162,7 @@
 
         public override string ToString()
         {
-            return $"{this.FriendlyName.Value} ({this.SerialNumber.Value})";
+            return $"{this.Manufacturer.Value} {this.FriendlyName.Value}";
         }
     }
 }

@@ -23,6 +23,13 @@
         {
             this.Icon = Icon.ExtractAssociatedIcon(Application.ExecutablePath);
             InitializeComponent();
+
+            if (!Preferences.TipShown)
+            {
+                MessageBox.Show($"For best results, disable automatic conversion on iOS.\r\n\r\n1. Open iOS settings\r\n2. Go to Photos settings\r\n3. Set \"Transfer to Mac or PC\" to \"Keep Originals\"", "Media Importer", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                Preferences.TipShown = true;
+            }
+
             this.LoadDevices();
 
             importWorker.DoWork += new DoWorkEventHandler(ImportItems);

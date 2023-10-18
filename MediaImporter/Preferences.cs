@@ -26,11 +26,17 @@
             var lines = File.ReadAllLines(ConfigFilePath);
             foreach (var line in lines)
             {
-                var parts = " = ".Split(line);
+                if (line[0] == '#')
+                {
+                    continue;
+                }
+
+                var parts = line.Split(" = ", 2);
                 if (parts.Length != 2)
                 {
                     continue;
                 }
+
                 var key = parts[0];
                 var value = parts[1];
 
@@ -44,6 +50,9 @@
                         break;
                     case "convert_heic":
                         _ConvertHeic = value == "true";
+                        break;
+                    case "tip_shown":
+                        _TipShown = value == "true";
                         break;
                 }
             }
@@ -59,6 +68,7 @@
                 $"dir_format = {_DirectoryFormat}",
                 $"file_format = {_FileFormat}",
                 $"convert_heic = {(_ConvertHeic ? "true" : "false")}",
+                $"tip_shown = {(_TipShown ? "true" : "false")}",
             });
         }
 
@@ -68,16 +78,19 @@
             _DirectoryFormat = DefaultDirectoryFormat;
             _FileFormat = DefaultFileFormat;
             _ConvertHeic = DefaultConvertHeic;
+            _TipShown = DefaultTipShown;
             Save();
         }
 
         private static readonly string DefaultDirectoryFormat = @"%y\%M-%MMM\";
         private static readonly string DefaultFileFormat = @"%y-%M-%d %H.%m.%s";
         private static readonly bool DefaultConvertHeic = true;
+        private static readonly bool DefaultTipShown = false;
 
         private static string _DirectoryFormat = DefaultDirectoryFormat;
         private static string _FileFormat = DefaultFileFormat;
         private static bool _ConvertHeic = DefaultConvertHeic;
+        private static bool _TipShown = DefaultTipShown;
 
         public static string DirectoryFormat
         {
@@ -114,6 +127,19 @@
             set
             {
                 _ConvertHeic = value;
+                Save();
+            }
+        }
+
+        public static bool TipShown
+        {
+            get
+            {
+                return _TipShown;
+            }
+            set
+            {
+                _TipShown = value;
                 Save();
             }
         }

@@ -15,6 +15,7 @@
     <Copyright>Copyright Ian Spence 2023</Copyright>
     <PackageIcon>Assets\icon.png</PackageIcon>
     <RootNamespace>io.ecn.MediaImporter</RootNamespace>
+    <Version>1.0.1</Version>
   </PropertyGroup>
 
   <ItemGroup>
