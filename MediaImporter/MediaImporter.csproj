@@ -6,7 +6,7 @@
     <Nullable>enable</Nullable>
     <UseWindowsForms>true</UseWindowsForms>
     <ImplicitUsings>enable</ImplicitUsings>
-    <Platforms>AnyCPU;x64</Platforms>
+    <Platforms>x64;ARM64</Platforms>
     <StartupObject>io.ecn.MediaImporter.Program</StartupObject>
     <ApplicationIcon>Assets\icon.ico</ApplicationIcon>
     <Title>Media Importer</Title>
@@ -44,7 +44,8 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Magick.NET-Q16-HDRI-x64" Version="13.2.0" />
+    <PackageReference Include="Magick.NET-Q16-HDRI-AnyCPU" Version="13.5.0" />
+    <PackageReference Include="Magick.NET.Core" Version="13.5.0" />
   </ItemGroup>
 
   <ItemGroup>
