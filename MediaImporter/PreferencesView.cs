@@ -33,7 +33,7 @@
 
         private void aboutButton_Click(object sender, EventArgs e)
         {
-            MessageBox.Show($"Media Importer v{Assembly.GetExecutingAssembly().GetName().Version!}\r\n\r\nCreated by Ian Spence. Copyright © 2023. Media Importer is free & open source software released under the terms of the Mozilla Public License (MPL).\r\n\r\nMedia Importer includes ImageMagick. ImageMagick is Copyright © 1999 ImageMagick Studio LLC.", "About Media Importer", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            MessageBox.Show($"Media Importer v{Assembly.GetExecutingAssembly().GetName().Version!}\r\n\r\nCreated by Ian Spence. Copyright © 2023-2024. Media Importer is free & open source software released under the terms of the Mozilla Public License (MPL).\r\n\r\nMedia Importer includes ImageMagick. ImageMagick is Copyright © 1999 ImageMagick Studio LLC.", "About Media Importer", MessageBoxButtons.OK, MessageBoxIcon.Information);
         }
     }
 }

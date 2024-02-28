@@ -12,10 +12,10 @@
     <Title>Media Importer</Title>
     <Authors>Ian Spence</Authors>
     <Company />
-    <Copyright>Copyright Ian Spence 2023</Copyright>
+    <Copyright>Copyright Ian Spence 2024</Copyright>
     <PackageIcon>Assets\icon.png</PackageIcon>
     <RootNamespace>io.ecn.MediaImporter</RootNamespace>
-    <Version>1.0.1</Version>
+    <Version>1.0.2</Version>
   </PropertyGroup>
 
   <ItemGroup>
@@ -44,8 +44,8 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Magick.NET-Q16-HDRI-AnyCPU" Version="13.5.0" />
-    <PackageReference Include="Magick.NET.Core" Version="13.5.0" />
+    <PackageReference Include="Magick.NET-Q16-HDRI-AnyCPU" Version="13.7.0" />
+    <PackageReference Include="Magick.NET.Core" Version="13.7.0" />
   </ItemGroup>
 
   <ItemGroup>
