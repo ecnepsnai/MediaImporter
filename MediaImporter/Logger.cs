@@ -7,7 +7,7 @@
     public class LogWriter
     {
         private static readonly object semaphore = new();
-        private static FileStream? fileStream;
+        private static FileStream fileStream;
 
         public static void Open()
         {
@@ -19,10 +19,10 @@
             lock (semaphore)
             {
                 var line = ($"[{DateTime.Now}][{className}][{Environment.CurrentManagedThreadId}][{level}] {message}").Replace("\r", "\\r").Replace("\n", "\\n");
-                Debug.WriteLine(line);        
-                fileStream?.Write(new UTF8Encoding().GetBytes(line));
-                fileStream?.Write(new UTF8Encoding().GetBytes("\r\n"));
-                fileStream?.Flush();
+                Debug.WriteLine(line);
+                fileStream.Write(new UTF8Encoding().GetBytes(line));
+                fileStream.Write(new UTF8Encoding().GetBytes("\r\n"));
+                fileStream.Flush();
             }
         }
     }

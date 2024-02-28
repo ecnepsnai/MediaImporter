@@ -4,6 +4,7 @@
     using io.ecn.MediaImporter;
     using System;
     using System.Collections.Generic;
+    using System.Diagnostics;
     using System.IO;
     using System.Linq;
     using System.Threading.Tasks;
@@ -89,7 +90,11 @@
 
         private List<string> DoImport(Device importDevice, string importDirectory, List<Item> items, IProgress<int> progress)
         {
+            Stopwatch stopwatch = new Stopwatch();
+            stopwatch.Start();
+
             logger.Info("Starting import...");
+            long totalImported = 0;
 
             // Build two maps, one used for date deduplication and the other to hold the desired file name (without extension)
             Dictionary<string, bool> dateMap = new Dictionary<string, bool>();
@@ -161,8 +166,10 @@
 
                 File.SetCreationTime(filePath, item.Date);
                 File.SetLastWriteTime(filePath, item.Date);
+                long size = (new FileInfo(filePath)).Length;
+                totalImported += size;
 
-                logger.Info($"Imported {item.Id} -> {filePath}");
+                logger.Info($"Imported {item.Id} to {filePath} ({size}B)");
 
                 filePaths.Add(filePath);
                 i++;
@@ -178,7 +185,10 @@
                 // Pass
             }
 
-            logger.Info($"Imported {filePaths.Count} media items");
+            stopwatch.Stop();
+            double mbps = (totalImported * 8.0 / 1000000) / stopwatch.Elapsed.TotalSeconds;
+
+            logger.Info($"Imported {filePaths.Count} media items totalling {totalImported/1024/1024}MB in {stopwatch.Elapsed.TotalSeconds} seconds at {mbps}Mbps");
 
             return filePaths;
         }
