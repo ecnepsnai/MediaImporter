@@ -14,7 +14,7 @@
         private readonly static Logger logger = new Logger(typeof(ImportManager));
         private readonly string[] validExtensions = { "jpg", "jpeg", "png", "gif", "mov", "mp4", "m4v", "heic", "heif", "hevc", "webp", "dng" };       
 
-        public Task<List<Item>> FindMedia(Device importDevice) {
+        public List<Item> FindMedia(Device importDevice) {
             logger.Info("Enumerating device items...");
 
             if (importDevice == null)
@@ -30,9 +30,7 @@
                 throw new InvalidOperationException("No media found");
             }
 
-            var t = new Task<List<Item>>(() => { return this.EnumerateDeviceItems(importDevice); });
-            t.Start();
-            return t;
+            return this.EnumerateDeviceItems(importDevice);
         }
 
         private List<Item> EnumerateDeviceItems(Device importDevice)

@@ -86,8 +86,12 @@
             this.importDevice = this.devices[this.deviceComboBox.SelectedIndex];
             this.importDestination = this.destinationTextBox.Text;
 
+            this.setControlsEnabled(false);
+
             var items = await this.ScanMedia();
             this.itemsToImport = items;
+
+            this.setControlsEnabled(true);
 
             if (items.Count == 0)
             {
@@ -183,7 +187,7 @@
 
         private async Task<List<Item>> ScanMedia()
         {
-            return await this.importManager.FindMedia(this.importDevice!);
+            return await Task.Run(() => this.importManager.FindMedia(this.importDevice!));
         }
 
         private void ImportItems(object? sender, DoWorkEventArgs e)
@@ -209,7 +213,7 @@
                 return;
             }
 
-            this.progressBar.Value = 0;
+            importWorker.ReportProgress(0, $"Encoding (0/{count})");
 
             var encodeProgress = new Progress<int>();
             encodeProgress.ProgressChanged += (object? sender, int e) =>
@@ -219,6 +223,16 @@
             };
 
             this.encodeManager.EncodeMedia(paths, encodeProgress).Wait();
+        }
+
+        private void setControlsEnabled(bool enabled)
+        {
+            this.optionsButton.Enabled = enabled;
+            this.scanButton.Enabled = enabled;
+            this.deviceComboBox.Enabled = enabled;
+            this.destinationTextBox.Enabled = enabled;
+            this.destinationBrowseButton.Enabled = enabled;
+            this.deviceReloadButton.Enabled = enabled;
         }
     }
 }
