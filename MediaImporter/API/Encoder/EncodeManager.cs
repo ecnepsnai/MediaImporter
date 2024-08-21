@@ -99,10 +99,11 @@
                     {
                         case MagickFormat.Heic:
                         case MagickFormat.Heif:
+                        case MagickFormat.Dng:
                             ConvertToJpg(file, "."+extension);
                             break;
                         default:
-                            logger.Info($"Skip convert {file}");
+                            logger.Info($"Skip convert {file} with format {format}");
                             break;
                     }
                     lock (this.semaphore)
