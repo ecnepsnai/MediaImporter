@@ -36,6 +36,8 @@
             importWorker.ProgressChanged += new ProgressChangedEventHandler(ImportProgress);
             importWorker.RunWorkerCompleted += new RunWorkerCompletedEventHandler(ImportComplete);
             importWorker.WorkerReportsProgress = true;
+
+            this.destinationTextBox.Text = Preferences.DefaultDirectory;
         }
 
         private void DeviceReloadButtonClick(object? sender, EventArgs e)
@@ -103,6 +105,8 @@
             {
                 return;
             }
+
+            Preferences.DefaultDirectory = this.destinationTextBox.Text;
 
             this.progressBar.Visible = true;
             this.progressBar.Value = 0;

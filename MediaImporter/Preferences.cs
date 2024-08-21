@@ -42,6 +42,9 @@
 
                 switch (key)
                 {
+                    case "default_dir":
+                        _DefaultDirectory = value;
+                        break;
                     case "dir_format":
                         _DirectoryFormat = value;
                         break;
@@ -65,6 +68,7 @@
             File.Delete(ConfigFilePath);
             File.WriteAllLines(ConfigFilePath, new string[]
             {
+                $"default_dir = {_DefaultDirectory}",
                 $"dir_format = {_DirectoryFormat}",
                 $"file_format = {_FileFormat}",
                 $"convert_heic = {(_ConvertHeic ? "true" : "false")}",
@@ -75,6 +79,7 @@
         public static void Reset()
         {
             logger.Info("Resetting settings");
+            _DefaultDirectory = DefaultDefaultDirectory;
             _DirectoryFormat = DefaultDirectoryFormat;
             _FileFormat = DefaultFileFormat;
             _ConvertHeic = DefaultConvertHeic;
@@ -82,15 +87,30 @@
             Save();
         }
 
+        private static readonly string DefaultDefaultDirectory = "";
         private static readonly string DefaultDirectoryFormat = @"%y\%M-%MMM\";
         private static readonly string DefaultFileFormat = @"%y-%M-%d %H.%m.%s";
         private static readonly bool DefaultConvertHeic = true;
         private static readonly bool DefaultTipShown = false;
 
+        private static string _DefaultDirectory = DefaultDefaultDirectory;
         private static string _DirectoryFormat = DefaultDirectoryFormat;
         private static string _FileFormat = DefaultFileFormat;
         private static bool _ConvertHeic = DefaultConvertHeic;
         private static bool _TipShown = DefaultTipShown;
+
+        public static string DefaultDirectory
+        {
+            get
+            {
+                return _DefaultDirectory;
+            }
+            set
+            {
+                _DefaultDirectory = value;
+                Save();
+            }
+        }
 
         public static string DirectoryFormat
         {
