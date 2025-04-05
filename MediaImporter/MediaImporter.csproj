@@ -2,7 +2,7 @@
 
   <PropertyGroup>
     <OutputType>WinExe</OutputType>
-    <TargetFramework>net6.0-windows</TargetFramework>
+    <TargetFramework>net8.0-windows10.0.22000.0</TargetFramework>
     <Nullable>enable</Nullable>
     <UseWindowsForms>true</UseWindowsForms>
     <ImplicitUsings>enable</ImplicitUsings>
@@ -12,12 +12,12 @@
     <Title>Media Importer</Title>
     <Authors>Ian Spence</Authors>
     <Company />
-    <Copyright>Copyright Ian Spence 2024</Copyright>
+    <Copyright>Copyright Ian Spence 2025</Copyright>
     <PackageIcon>Assets\icon.png</PackageIcon>
     <RootNamespace>io.ecn.MediaImporter</RootNamespace>
-	<Version>1.0.3</Version>
-	<AssemblyVersion>1.0.3.0</AssemblyVersion>
-	<FileVersion>1.0.3.0</FileVersion>
+	<Version>1.0.5</Version>
+	<AssemblyVersion>1.0.5.0</AssemblyVersion>
+	<FileVersion>1.0.5.0</FileVersion>
   </PropertyGroup>
 
   <ItemGroup>
@@ -46,8 +46,8 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Magick.NET-Q16-HDRI-AnyCPU" Version="13.10.0" />
-    <PackageReference Include="Magick.NET.Core" Version="13.10.0" />
+    <PackageReference Include="Magick.NET-Q16-HDRI-AnyCPU" Version="14.6.0" />
+    <PackageReference Include="Magick.NET.Core" Version="14.6.0" />
   </ItemGroup>
 
   <ItemGroup>
