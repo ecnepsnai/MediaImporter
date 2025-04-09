@@ -116,7 +116,7 @@
             IPortableDeviceResources resources;
             DeviceContent.Transfer(out resources);
 
-            IStream wpdStream = null;
+            IStream wpdStream;
             uint optimalTransferSize = 0;
 
             var defaultResourceProperty = new _tagpropertykey
@@ -125,40 +125,31 @@
                 pid = 0
             };
 
-            System.Runtime.InteropServices.ComTypes.IStream sourceStream = null;
+            resources.GetStream(Id, ref defaultResourceProperty, 0, ref optimalTransferSize, out wpdStream);
+            System.Runtime.InteropServices.ComTypes.IStream sourceStream = (System.Runtime.InteropServices.ComTypes.IStream)wpdStream;
+
+            if (optimalTransferSize < 1024 * 1024)
+            {
+                optimalTransferSize = 1024 * 1024;
+            }
+
+            FileStream targetStream = new FileStream(fileName, FileMode.Create, FileAccess.Write);
+
             try
             {
-                resources.GetStream(Id, ref defaultResourceProperty, 0, ref optimalTransferSize, out wpdStream);
-                sourceStream = (System.Runtime.InteropServices.ComTypes.IStream)wpdStream;
-
-                if (optimalTransferSize < 1024 * 1024)
+                var amtRead = Marshal.AllocCoTaskMem(Marshal.SizeOf(typeof(int)));
+                Marshal.WriteInt32(amtRead, (int)optimalTransferSize);
+                var buffer = new byte[optimalTransferSize];
+                while (Marshal.ReadInt32(amtRead) > 0)
                 {
-                    optimalTransferSize = 1024 * 1024;
+                    sourceStream.Read(buffer, buffer.Length, amtRead);
+                    targetStream.Write(buffer, 0, Marshal.ReadInt32(amtRead));
                 }
-
-                FileStream targetStream = new FileStream(fileName, FileMode.Create, FileAccess.Write);
-
-                try
-                {
-                    var amtRead = Marshal.AllocCoTaskMem(Marshal.SizeOf(typeof(int)));
-                    Marshal.WriteInt32(amtRead, (int)optimalTransferSize);
-                    var buffer = new byte[optimalTransferSize];
-                    while (Marshal.ReadInt32(amtRead) > 0)
-                    {
-                        sourceStream.Read(buffer, buffer.Length, amtRead);
-                        targetStream.Write(buffer, 0, Marshal.ReadInt32(amtRead));
-                    }
-                }
-                finally
-                {
-                    targetStream.Flush();
-                    targetStream.Close();
-                }
-
-                Thread.Sleep(2000);
             }
             finally
             {
+                targetStream.Flush();
+                targetStream.Close();
                 Marshal.ReleaseComObject(sourceStream);
                 Marshal.ReleaseComObject(wpdStream);
             }

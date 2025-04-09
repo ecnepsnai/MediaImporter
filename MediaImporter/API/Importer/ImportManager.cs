@@ -106,7 +106,7 @@
                 }
                 catch (Exception e)
                 {
-                    logger.Error($"Error making item directory {itemDirectory}: {e.Message}");
+                    logger.Error($"Error making item directory {itemDirectory}: {e.Message}: {e.StackTrace}");
                     continue;
                 }
 
@@ -139,7 +139,7 @@
             }
             catch (Exception e)
             {
-                logger.Error($"Error connecting to device: {e.Message}");
+                logger.Error($"Error connecting to device: {e.Message}: {e.StackTrace}");
                 return filePaths;
             }
 
@@ -156,7 +156,7 @@
                 }
                 catch (Exception e)
                 {
-                    logger.Error($"Error transferring item to file: {filePath}: {e.Message}");
+                    logger.Error($"Error transferring item to file: {filePath}: {e.Message}: {e.StackTrace}");
                     i++;
                     progress.Report(i);
                     continue;
