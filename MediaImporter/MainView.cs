@@ -145,8 +145,18 @@
 
         private void LoadDevices()
         {
-            var devices = Utility.Get();
-            this.devices = devices;
+            List<Device>? devices = null;
+            try
+            {
+                devices = Utility.Get();
+                this.devices = devices;
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Error enumerating devices:\r\n{ex}", "Media Importer", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return;
+            }
+
             this.deviceComboBox.Items.Clear();
             if (devices == null || devices.Count == 0)
             {

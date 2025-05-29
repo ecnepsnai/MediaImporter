@@ -23,16 +23,17 @@ namespace io.ecn.MediaImporter
             Application.Run(new MainView());
         }
 
-        static void ThreadException(object sender, ThreadExceptionEventArgs e)
+        static void ThreadException(object sender, ThreadExceptionEventArgs args)
         {
-            logger.Error($"Unhandled exception: {e.Exception.Message} {e.Exception.StackTrace}");
+            Exception e = args.Exception;
+            logger.Error($"Unhandled exception: {e}\r\n{e.StackTrace}");
         }
 
 
         static void UnhandledException(object sender, UnhandledExceptionEventArgs args)
         {
             Exception e = (Exception)args.ExceptionObject;
-            logger.Error($"Unhandled exception: {e.Message} {e.StackTrace}");
+            logger.Error($"Unhandled exception: {e}\r\n{e.StackTrace}");
         }
     }
 }
