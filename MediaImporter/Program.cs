@@ -10,7 +10,27 @@ namespace io.ecn.MediaImporter
         [STAThread]
         static void Main()
         {
-            LogWriter.Open();
+            while (true) {
+                try
+                {
+                    LogWriter.Open();
+                    break;
+                }
+                catch (Exception e)
+                {
+                    var result = MessageBox.Show($"Unable to open log file:\r\n{e}", "Media Importer", MessageBoxButtons.AbortRetryIgnore, MessageBoxIcon.Error);
+                    if (result == DialogResult.Ignore)
+                    {
+                        break;
+                    }
+                    else if (result == DialogResult.Abort)
+                    {
+                        Application.Exit();
+                        return;
+                    }
+                }
+            }
+
             logger.Info("MediaImporter starting...");
 
             Application.ThreadException += new ThreadExceptionEventHandler(ThreadException);
