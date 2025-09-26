@@ -169,6 +169,7 @@
             Name = "MainView";
             StartPosition = FormStartPosition.CenterScreen;
             Text = "Media Importer";
+            Activated += MainView_Activated;
             ResumeLayout(false);
             PerformLayout();
         }

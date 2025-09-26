@@ -18,6 +18,7 @@
         List<Item> itemsToImport = new();
         Device? importDevice;
         string? importDestination;
+        bool firstLoadComplete = false;
 
         public MainView()
         {
@@ -26,11 +27,9 @@
 
             if (!Preferences.TipShown)
             {
-                MessageBox.Show($"For best results, disable automatic conversion on iOS.\r\n\r\n1. Open iOS settings\r\n2. Go to Photos settings\r\n3. Set \"Transfer to Mac or PC\" to \"Keep Originals\"", "Media Importer", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                MessageBox.Show($"For best results, disable automatic conversion on iOS.\r\n\r\n1. Open the \"Settings\" app.\r\n2. Go to \"Apps\" then \"Photos\"\r\n3. Set \"Transfer to Mac or PC\" to \"Keep Originals\".\r\nMedia Importer will manage conversions automatically.", "Media Importer", MessageBoxButtons.OK, MessageBoxIcon.Information);
                 Preferences.TipShown = true;
             }
-
-            this.LoadDevices();
 
             importWorker.DoWork += new DoWorkEventHandler(ImportItems);
             importWorker.ProgressChanged += new ProgressChangedEventHandler(ImportProgress);
@@ -40,9 +39,9 @@
             this.destinationTextBox.Text = Preferences.DefaultDirectory;
         }
 
-        private void DeviceReloadButtonClick(object? sender, EventArgs e)
+        private async void DeviceReloadButtonClick(object? sender, EventArgs e)
         {
-            this.LoadDevices();
+            await this.LoadDevices();
         }
 
         private void DeviceComboBoxSelectedIndexChanged(object? sender, EventArgs e)
@@ -143,17 +142,28 @@
             MessageBox.Show($"Imported {this.itemsToImport.Count} items", "Media Importer", MessageBoxButtons.OK, MessageBoxIcon.Information);
         }
 
-        private void LoadDevices()
+        private async Task LoadDevices()
         {
-            List<Device>? devices = null;
+            this.deviceComboBox.Enabled = false;
+            this.deviceReloadButton.Enabled = false;
+            this.deviceReloadButton.Text = "Loading...";
+            this.Cursor = Cursors.WaitCursor;
+
+            List<Device>? devices;
             try
             {
-                devices = Utility.Get();
+                devices = await Task.Run(Utility.Get);
                 this.devices = devices;
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Error enumerating devices:\r\n{ex}", "Media Importer", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                this.deviceComboBox.Enabled = true;
+                this.deviceReloadButton.Enabled = true;
+                this.deviceReloadButton.Text = "Reload";
+                this.Cursor = Cursors.Default;
+
+                logger.Error($"Error getting devices: {ex}");
+                MessageBox.Show($"Error loading devices:\r\n{ex}", "Media Importer");
                 return;
             }
 
@@ -166,7 +176,7 @@
             {
                 foreach (Device device in devices)
                 {
-                    var key = $"{device.Name.Value} - {device.Guid}";
+                    var key = $"{device.Label} - {device.Guid}";
                     if (!this.deviceComboBox.Items.Contains(key))
                     {
                         this.deviceComboBox.Items.Add(key);
@@ -174,11 +184,11 @@
                 }
                 for (int i = this.deviceComboBox.Items.Count - 1; i >= 0; i--)
                 {
-                    string item = (string)this.deviceComboBox.Items[i];
+                    string? item = this.deviceComboBox.Items[i] as string;
                     bool found = false;
                     foreach (Device device in devices)
                     {
-                        var key = $"{device.Name.Value} - {device.Guid}";
+                        var key = $"{device.Label} - {device.Guid}";
                         if (key == item)
                         {
                             found = true;
@@ -197,6 +207,11 @@
                     ValidateInputs();
                 }
             }
+
+            this.deviceComboBox.Enabled = true;
+            this.deviceReloadButton.Enabled = true;
+            this.deviceReloadButton.Text = "Reload";
+            this.Cursor = Cursors.Default;
         }
 
         private async Task<List<Item>> ScanMedia()
@@ -247,6 +262,15 @@
             this.destinationTextBox.Enabled = enabled;
             this.destinationBrowseButton.Enabled = enabled;
             this.deviceReloadButton.Enabled = enabled;
+        }
+
+        private async void MainView_Activated(object sender, EventArgs e)
+        {
+            if (!this.firstLoadComplete)
+            {
+                this.firstLoadComplete = true;
+                await this.LoadDevices();
+            }
         }
     }
 }
