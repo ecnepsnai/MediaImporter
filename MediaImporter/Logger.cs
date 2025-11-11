@@ -11,14 +11,15 @@
 
         public static void Open()
         {
-            fileStream = File.Open(Path.Combine(Path.GetTempPath(), "mediaimporter_log.txt"), FileMode.Append, FileAccess.Write, FileShare.Read);
+            fileStream = File.Open(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "MediaImporter", "app.log"), FileMode.Append, FileAccess.Write, FileShare.Read);
         }
 
         internal static void Write(string className, string level, string message)
         {
             lock (semaphore)
             {
-                var line = ($"[{DateTime.Now}][{className}][{Environment.CurrentManagedThreadId}][{level}] {message}").Replace("\r", "\\r").Replace("\n", "\\n");
+                var date = DateTime.Now.ToString("yyyy'-'MM'-'dd'T'HH':'mm':'ss'.'fffffff");
+                var line = ($"[{date}][{className}][{Environment.CurrentManagedThreadId}][{level}] {message}").Replace("\r", "\\r").Replace("\n", "\\n");
                 Debug.WriteLine(line);
                 fileStream?.Write(new UTF8Encoding().GetBytes(line));
                 fileStream?.Write(new UTF8Encoding().GetBytes("\r\n"));
@@ -38,7 +39,7 @@
 
         public void Info(string message)
         {
-            LogWriter.Write(this.type.Name, "INFO", message);
+            LogWriter.Write(this.type.Name, "INFO ", message);
         }
 
         public void Error(string message)
