@@ -5,9 +5,12 @@
     using io.ecn.Importer.Model.Properties;
     using io.ecn.Importer.Model.Properties.Device;
     using IPortableDeviceValues = PortableDeviceApiLib.IPortableDeviceValues;
+    using io.ecn.MediaImporter;
 
     public class Device : BaseDeviceItem
     {
+        private readonly static Logger logger = new Logger(typeof(Device));
+
         public string DeviceId { get; set; }
 
         public ContentTypeProperty ContentType { get; set; }
@@ -62,8 +65,6 @@
             Model = new ModelProperty(deviceProperties);
             Name = new NameProperty(deviceProperties);
 
-            LoadDeviceData(ComDeviceObject);
-
             Disconnect();
         }
         
@@ -96,13 +97,21 @@
         /// <param name="isKeepFolderStructure"></param>
         public void TransferData(string destinationPath, bool isKeepFolderStructure)
         {
+            logger.Info($"Begin enumerating media on device");
+
             try
             {
                 Connect();
+                LoadDeviceData(ComDeviceObject);
                 foreach (Item item in DeviceItems)
                 {
                     item.TransferFiles(destinationPath, isKeepFolderStructure);
                 }
+            }
+            catch (Exception ex)
+            {
+                logger.Error($"Failed to enumerate media on device: {ex}");
+                throw;
             }
             finally
             {
