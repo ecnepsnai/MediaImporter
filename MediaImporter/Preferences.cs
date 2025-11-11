@@ -11,6 +11,11 @@
         public static void Load()
         {
             var dirName = Path.GetDirectoryName(ConfigFilePath);
+            if (dirName == null)
+            {
+                throw new DirectoryNotFoundException("Unable to find suitable configuration path");
+            }
+
             if (!Directory.Exists(dirName))
             {
                 logger.Info($"Creating preferences directory {dirName}");
